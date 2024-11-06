@@ -14,12 +14,13 @@ b = 65.8e+6 # m^3 /mol
 R = 8.3145  # J /mol /K
 CROSS_SECTION = 3.13/100 # m^2
 
+perr = 60/100
 def main():
     p = Path(".") /"datas"
     #fig, plt = plt.subplots()
     #cm = mpl.colormaps["plasma"]
 
-    for d in filter(lambda path: path.suffix == '.csv' ,p.iterdir()):
+    for d in filter(lambda path: path.suffix == '.csv' and path.name.startswith("isotherm") ,p.iterdir()):
         df = pd.read_csv(d, encoding='cp1252')
         name = d.stem
         print(name)
@@ -32,10 +33,10 @@ def main():
         plt.xlabel("s /mm")
         plt.ylabel("p /bar")
 
-        plt.scatter(ss, ps,
+        plt.errorbar(ss, ps,
                 label=f"gemessene Isotherme bei {T}°C",
-    #            color=c
-                s = 10
+                yerr=[perr for _ in ps],
+                fmt="o"
                 )
 
     plt.set_cmap('jet')
