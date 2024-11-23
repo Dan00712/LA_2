@@ -1,11 +1,10 @@
 from pathlib import Path
 
-import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
 
-CROSS_SECTION = 3.13 * 10   # (mm)^2
+CROSS_SECTION = 3.14        # (cm)^2
 perr = 60/100               # preassure error is 1% of 60 bar
 
 
@@ -28,11 +27,13 @@ def main():
 
 
         ps = df.iloc[:, 2]  # overpreassure is already compensated
-        ss = df.iloc[:, 1]
-        Vs = ss * CROSS_SECTION
+        ss = df.iloc[:, 1]/10   # in cm
+        Vs = ss * CROSS_SECTION # in cm^3
+
         T  = df.iloc[0,0]   # Temperature is constant
 
-        plt.xlabel("V /mm$^3$")
+        plt.ylabel("p /bar")
+        plt.xlabel("V /cm$^3$")
         plt.errorbar(
                 Vs, ps,
                 label=f"gemessene Isotherme bei {T:>.1f}°C",

@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
+CROSS_SECTION = 3.14 # cm^2
 perr = 60 / 100  # preassure error is 1% of 60 bar
 Terr = 1.5  # temperature error is ~ +-1.5°C
-CROSS_SECTION = 3.13 * 10 # (mm)^2
 
 def main():
     p = Path(".") /"datas"
@@ -27,18 +27,17 @@ def main():
         # T/°C, s/mm, p/bar, Phase
         df = pd.read_csv(d)
 
-
-        ps = df.iloc[:, 2] # overpreassure is already compensated
+        ps = df.iloc[:, 2]  # overpreassure is already compensated
         Ts = df.iloc[:, 0]
-        s  = df.iloc[0,1] # s is constant
-        V = s * CROSS_SECTION
+
+        s  = df.iloc[0,1]/10    # s is constant, s in cm
+        V = s * CROSS_SECTION   # in cm^2
 
         plt.xlabel("T /°C")
         plt.ylabel("p /bar")
-
         plt.errorbar(
                 Ts, ps,
-                label=f"gemessene Isotherme bei ${V:>4.0f}mm^3$",
+                label=f"gemessene Isotherme bei ${V:> 6.2f}cm^3$",
                 xerr=[Terr for _ in Ts],
                 yerr=[perr for _ in ps],
                 fmt=fmt
