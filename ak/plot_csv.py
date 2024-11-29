@@ -1,3 +1,4 @@
+#!/bin/env python
 import argparse
 from pathlib import Path
 import math
@@ -40,6 +41,7 @@ def main():
     df = pd.read_csv(file)
     max_amplitude = df['amp'].max()
     df['amp'] = df['amp'] /max_amplitude    # normalize amplitudes
+    df['amp'] = df['amp'] ** 2
 
     handle_ideal_plot(df, args.reg_mode, args.reg_fmt, args.mirror)
 
