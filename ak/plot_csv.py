@@ -44,6 +44,9 @@ def main():
     handle_ideal_plot(df, args.reg_mode, args.reg_fmt, args.mirror)
 
     handle_csv_plot(df, args.has_state, args.mirror)
+
+    plt.xlabel('Rotation entlang des Kreises /°')
+    plt.ylabel('normierte Amplitude / $\\left(\\frac{A}{A_0}\\right)$')
     plt.legend()
 
     if args.outfile is not None:

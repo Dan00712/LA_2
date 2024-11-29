@@ -4,13 +4,13 @@ import scipy.optimize as opt
 LAMBDA = 0.8 /100 # m
 K = 2*np.pi /LAMBDA
 
-def single_slit(alpha, b, offset):
+def single_slit(alpha, b, A, offset):
     alpha = alpha * 2*np.pi /360    # transform to rad
-    return (np.sinc(K/2 * b * np.sin(alpha)))**2 + offset
+    return A*(np.sinc(K/2 * b * np.sin(alpha)))**2 + offset
 
-def double_slit(alpha, a, b, offset):
+def double_slit(alpha, a, b, A, offset):
     alpha = alpha * 2*np.pi /360    # transform to rad
-    return (np.sinc(K/2 * b * np.sin(alpha)))**2 \
+    return A* (np.sinc(K/2 * b * np.sin(alpha)))**2 \
             * (np.cos(K/2 * a * np.sin(alpha)))**2 + offset
 
 def fit_single_slit(df):
@@ -20,10 +20,10 @@ def fit_single_slit(df):
     res =  opt.curve_fit(single_slit,
                   alpha,
                   amp,
-                  [LAMBDA/50, 0]
+                  [LAMBDA/50, 1, 0]
     )[0]
-    df['amp'] = df['amp'] - res[-1]
-    res = list(res[:-1]) + [0]
+    #df['amp'] = df['amp'] - res[-1]
+    #res = list(res[:-1]) + [0]
 
     return res
 
@@ -35,7 +35,7 @@ def fit_double_slit(df):
     res = opt.curve_fit(double_slit,
                   alpha,
                   amp,
-                  [LAMBDA, 1, 0]
+                  [LAMBDA, 1, 1, 0]
     )[0]
     return res
 
