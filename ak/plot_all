@@ -1,6 +1,7 @@
 
 source .venv/bin/activate
 DST="./imgs/"
+SCRIPT="./plot_csv.py"
 
 [ -d "$DST" ] || mkdir -p $DST
 
@@ -9,12 +10,12 @@ DST="./imgs/"
 ##################################################################################
 
 echo "plotting single slit"
-python plot_csv.py \
+$SCRIPT \
     --reg-mode=none \
     --outfile $DST/2.1_Interferenz.png \
     ./data/2.1_Interferenz.csv
 
-python plot_csv.py \
+$SCRIPT \
     --reg-mode=single \
     --mirror \
     --outfile $DST/2.1_Interferenz.fit.png \
@@ -27,12 +28,12 @@ python plot_csv.py \
 ##################################################################################
 
 echo "plotting double slit"
-python plot_csv.py \
+$SCRIPT \
     --reg-mode=none \
     --outfile $DST/2.2_Doppelspalt.png \
     ./data/2.2_doppelspalt.csv
 # fit over double is not stable
-python plot_csv.py \
+$SCRIPT \
     --reg-mode=single_max \
     --mirror \
     --outfile $DST/2.2_Doppelspalt.fit.png \
@@ -43,7 +44,7 @@ python plot_csv.py \
 ##################################################################################
 
 echo "plotting lloyd mirror"
-python plot_csv.py \
+$SCRIPT \
     --reg-mode=none \
     --outfile $DST/2.3_lloydspiegel.png \
     ./data/2.3_lloydspiegel.csv
@@ -53,12 +54,12 @@ python plot_csv.py \
 ##################################################################################
 
 echo "plotting double generator"
-python plot_csv.py \
+$SCRIPT \
     --reg-mode=none \
     --outfile $DST/2.4_doppelgenerator.png \
     ./data/2.4_doppelgenerator.csv
 
-python plot_csv.py \
+$SCRIPT \
     --reg-mode=single_max \
     --mirror \
     --outfile $DST/2.4_doppelgenerator.fit.png \
