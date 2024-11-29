@@ -59,3 +59,5 @@ python plot_csv.py \
     --mirror \
     --outfile $DST/2.4_doppelgenerator.fit.png \
     ./data/2.4_doppelgenerator.csv'
+
+deactivate
