@@ -1,5 +1,6 @@
+#!/bin/sh
+. ./.venv/bin/activate
 
-source .venv/bin/activate
 DST="./imgs/"
 SCRIPT="./plot_csv.py"
 
