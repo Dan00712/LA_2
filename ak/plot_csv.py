@@ -8,24 +8,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 import curve_fit_slits as cfs
-# a script to plot the interference patterns in the experiments
-#   2.1; 2.2; 2.3; 2.4
-# cli args: csv files
 
-
-IDEALISATIONS=[
-    'none',
-    'single',
-    'double'
-]
-
-parser = argparse.ArgumentParser()
-parser.add_argument('file', type=Path)
-parser.add_argument('--reg-mode', choices=IDEALISATIONS, default='none')
-parser.add_argument('--reg-fmt', default='--m')
-parser.add_argument('--has-state', action=argparse.BooleanOptionalAction, default=True)
-parser.add_argument('-o', '--outfile', type=Path, default=None)
-parser.add_argument('--mirror', action=argparse.BooleanOptionalAction, default=False)
+ABSOLUTE_ERROR = 80 # mV
 fmts=[
         'rs',
         'bo',
@@ -40,12 +24,12 @@ def main():
 
     df = pd.read_csv(file)
     max_amplitude = df['amp'].max()
+    error = ABSOLUTE_ERROR / max_amplitude
     df['amp'] = df['amp'] /max_amplitude    # normalize amplitudes
-    df['amp'] = df['amp'] ** 2
 
     handle_ideal_plot(df, args.reg_mode, args.reg_fmt, args.mirror)
 
-    handle_csv_plot(df, args.has_state, args.mirror)
+    handle_csv_plot(df, args.has_state, args.mirror, lambda _: error)
 
     plt.xlabel('Rotation entlang des Kreises /°')
     plt.ylabel('normierte Amplitude / $\\left(\\frac{A}{A_0}\\right)$')
@@ -59,7 +43,7 @@ def main():
     plt.savefig(outfile)
      
 
-def handle_csv_plot(df, has_state, mirror):
+def handle_csv_plot(df, has_state, mirror, error):
     # plot min and max in different colors, column is state
     # valid values are:
     #   m...Maximum
@@ -74,33 +58,53 @@ def handle_csv_plot(df, has_state, mirror):
                 label = 'gemessene Minima'
             else:
                 label = 'andere Messpunkte'
-            plot_df(sf, fmt, mirror, label)
+            plot_df(sf, fmt, mirror, error, label)
     else:
-        plot_df(df, fmts[0], mirror)
+        plot_df(df, fmts[0], mirror, error)
 
 
-def plot_df(df, fmt, mirror, label='gemessene Amplituden'):
-    plt.plot(df['deg'], df['amp'], fmt,
-             label=label)
+def plot_df(df, fmt, mirror, error, label='gemessene Amplituden'):
+    plt.errorbar(df['deg'], df['amp'], 
+                 fmt=fmt,
+                 yerr=[error(A) for A in df['amp']],
+                 label=label
+                 )
     if mirror:
-        plt.plot(-df['deg'], df['amp'], fmt)
+        plt.errorbar(-df['deg'], df['amp'], 
+                     fmt=fmt, 
+                     yerr=[error(A) for A in df['amp']]
+                    )
 
 
 def handle_ideal_plot(df, reg_mode, reg_fmt, mirror):
     # do nothing if not in list or if none, 
     #   none must be first element
-    if reg_mode.lower() not in IDEALISATIONS[1:]:
+    if reg_mode.lower() == 'none':
         return
 
-    funcs = {'single': single, 'double': double}
-    x, y = funcs[reg_mode](df, mirror)
+    x, y = IDEALISATION_FS[reg_mode](df, mirror)
+    if reg_mode == 'single_max':
+        label = 'einhüllende Kurve'
+    else:
+        label = 'idealle Amplitude'
     plt.plot(x, y, reg_fmt,
-             label='idealle Amplitude'
+             label=label
     )
         
 
 def single(df, mirror):
-    popts = cfs.fit_single_slit(df)
+    return ideal_gen(df, mirror, cfs.fit_single_slit)
+
+def single_max(df, mirror):
+    assert 'state' in df
+    return ideal_gen(df[df['state'] == 'm'], mirror, cfs.fit_single_slit_no)
+
+
+def double(df, mirror):
+    return ideal_gen(df, mirror, cfs.fit_double_slit)
+
+def ideal_gen(df, mirror, fitter):
+    popts = fitter(df)
     alpham = df['deg'].max()
     if mirror:
         alpha = np.linspace(-alpham, alpham, 200)
@@ -109,14 +113,16 @@ def single(df, mirror):
     return (alpha, cfs.single_slit(alpha, *popts))
 
 
-def double(df, mirror):
-    popts = cfs.fit_double_slit(df)
-    if mirror:
-        alpha = np.linspace(-45, 45, 200)
-    else:
-        alpha = np.linspace(-45, 45, 200)
-    return (alpha, cfs.double_slit(alpha, *popts))
+IDEALISATION_FS = {'single': single, 'double': double, 'single_max': single_max}
+IDEALISATIONS=list(IDEALISATION_FS.keys()) + ['none']
 
+parser = argparse.ArgumentParser()
+parser.add_argument('file', type=Path)
+parser.add_argument('--reg-mode', choices=IDEALISATIONS, default='none')
+parser.add_argument('--reg-fmt', default='--m')
+parser.add_argument('--has-state', action=argparse.BooleanOptionalAction, default=True)
+parser.add_argument('-o', '--outfile', type=Path, default=None)
+parser.add_argument('--mirror', action=argparse.BooleanOptionalAction, default=False)
 
 if __name__ == '__main__':
     main()
