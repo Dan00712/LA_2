@@ -66,12 +66,14 @@ def handle_csv_plot(df, has_state, mirror, error):
 def plot_df(df, fmt, mirror, error, label='gemessene Amplituden'):
     plt.errorbar(df['deg'], df['amp'], 
                  fmt=fmt,
+                 xerr=[1 for _ in df['deg']],
                  yerr=[error(A) for A in df['amp']],
                  label=label
                  )
     if mirror:
         plt.errorbar(-df['deg'], df['amp'], 
                      fmt=fmt, 
+                     xerr=[1 for _ in df['deg']],
                      yerr=[error(A) for A in df['amp']]
                     )
 
