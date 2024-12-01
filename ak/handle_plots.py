@@ -54,7 +54,7 @@ def handle_ideal_plot(df, reg_mode, reg_fmt, mirror):
 
     x, y = IDEALISATION_FS[reg_mode](df, mirror)
     if reg_mode == "single_max":
-        label = "einhüllende Kurve"
+        label = "einhuellende Kurve"
     else:
         label = "idealle Amplitude"
     plt.plot(x, y, reg_fmt, label=label)

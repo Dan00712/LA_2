@@ -33,7 +33,7 @@ def main():
 
     handle_csv_plot(df, args.has_state, args.mirror, lambda _: error)
 
-    plt.xlabel("Rotation entlang des Kreises /°")
+    plt.xlabel("Rotation entlang des Kreises /$^\\circ$")
     plt.ylabel("normierte Amplitude / $\\left(\\frac{A}{A_0}\\right)$")
     plt.legend()
 
